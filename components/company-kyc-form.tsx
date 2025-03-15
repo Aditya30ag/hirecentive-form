@@ -3,7 +3,7 @@
 import type React from "react";
 import { useState } from "react";
 import { useEffect } from "react";
-import { ArrowRight, Upload, Check, X, Info } from "lucide-react";
+import { ArrowRight, Upload, Check, X, Info, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -24,7 +24,8 @@ import ParticleCanvas from "./ParticleCanvas";
 import FileUpload from "./FIleUploadButton";
 
 export default function DeliveryPartnerKYCForm() {
-  const [formData, setFormData] = useState({
+  // Initial form state
+  const initialFormState = {
     fullName: "",
     panNumber: "",
     aadharNumber: "",
@@ -35,26 +36,29 @@ export default function DeliveryPartnerKYCForm() {
     bankAccountNumber: "",
     ifscCode: "",
     bankName: "",
-    deviceType: "android", // Added deviceType with default value
+    deviceType: "android",
     androidPhoneModel: "",
     androidVersion: "",
-    iosDevice: "", // Added iOS device field
-    iosVersion: "", // Added iOS version field
+    iosDevice: "",
+    iosVersion: "",
     vehicleType: "two-wheeler",
     declaration: false,
     declaration1: false,
     date: new Date().toISOString().split("T")[0],
-  });
+  };
+
+  const [formData, setFormData] = useState(initialFormState);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({});
 
   // Document upload states
   const [panFile, setPanFile] = useState<File | null>(null);
-  const [drivingLicenseFile, setDrivingLicenseFile] = useState<File | null>(
-    null
-  );
+  const [drivingLicenseFile, setDrivingLicenseFile] = useState<File | null>(null);
   const [registrationFile, setRegistrationFile] = useState<File | null>(null);
   const [insuranceFile, setInsuranceFile] = useState<File | null>(null);
   const [addressProofFile, setAddressProofFile] = useState<File | null>(null);
   const [bankProofFile, setBankProofFile] = useState<File | null>(null);
+  const [fileErrors, setFileErrors] = useState<Record<string, string>>({});
 
   // Verification states
   const [aadharVerified, setAadharVerified] = useState<boolean | null>(null);
@@ -68,6 +72,18 @@ export default function DeliveryPartnerKYCForm() {
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    
+    // Mark field as touched
+    setTouchedFields(prev => ({...prev, [name]: true}));
+    
+    // Clear error when user starts typing
+    if (formErrors[name]) {
+      setFormErrors(prev => {
+        const newErrors = {...prev};
+        delete newErrors[name];
+        return newErrors;
+      });
+    }
 
     if (name === "aadharNumber") {
       setAadharVerified(null);
@@ -100,6 +116,32 @@ export default function DeliveryPartnerKYCForm() {
   const validatePAN = (pan: string) => {
     const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
     return panRegex.test(pan);
+  };
+
+  const validateMobile = (mobile: string) => {
+    const mobileRegex = /^[6-9]\d{9}$/;
+    return mobileRegex.test(mobile);
+  };
+
+  const validateEmail = (email: string) => {
+    if (!email) return true; // Email is optional
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const validatePincode = (pincode: string) => {
+    const pincodeRegex = /^\d{6}$/;
+    return pincodeRegex.test(pincode);
+  };
+
+  const validateBankDetails = (accountNo: string, ifsc: string) => {
+    const accountRegex = /^\d{9,18}$/;
+    const ifscRegex = /^[A-Z]{4}0[A-Z0-9]{6}$/;
+    
+    return {
+      accountValid: accountRegex.test(accountNo),
+      ifscValid: ifscRegex.test(ifsc)
+    };
   };
 
   const handleAadharVerify = () => {
@@ -138,24 +180,160 @@ export default function DeliveryPartnerKYCForm() {
     setPanError("");
   };
 
-  // const handleFileChange = (
-  //   e: React.ChangeEvent<HTMLInputElement>,
-  //   setFile: React.Dispatch<React.SetStateAction<File | null>>
-  // ) => {
-  //   if (e.target.files) {
-  //     setFile(e.target.files[0]);
-  //   }
-  // };
-
   const handleSelectChange = (name: string, value: string) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
+    setTouchedFields(prev => ({...prev, [name]: true}));
+    
+    if (formErrors[name]) {
+      setFormErrors(prev => {
+        const newErrors = {...prev};
+        delete newErrors[name];
+        return newErrors;
+      });
+    }
+  };
+
+  const handleCheckboxChange = (name: string, checked: boolean) => {
+    setFormData((prev) => ({ ...prev, [name]: checked }));
+    setTouchedFields(prev => ({...prev, [name]: true}));
+    
+    if (formErrors[name]) {
+      setFormErrors(prev => {
+        const newErrors = {...prev};
+        delete newErrors[name];
+        return newErrors;
+      });
+    }
+  };
+
+  const handleFileChange = (name: string, file: File | null) => {
+    if (file) {
+      setFileErrors(prev => {
+        const newErrors = {...prev};
+        delete newErrors[name];
+        return newErrors;
+      });
+    }
+  };
+
+  // Reset form function
+  const resetForm = () => {
+    setFormData(initialFormState);
+    setPanFile(null);
+    setDrivingLicenseFile(null);
+    setRegistrationFile(null);
+    setInsuranceFile(null);
+    setAddressProofFile(null);
+    setBankProofFile(null);
+    setAadharVerified(null);
+    setAadharError("");
+    setPanVerified(null);
+    setPanError("");
+    setFormErrors({});
+    setFileErrors({});
+    setTouchedFields({});
+  };
+
+  // Validate all fields
+  const validateForm = () => {
+    const errors: Record<string, string> = {};
+    const fileErrorsObj: Record<string, string> = {};
+
+    // Personal Details
+    if (!formData.fullName) errors.fullName = "Full name is required";
+    if (!formData.panNumber) errors.panNumber = "PAN number is required";
+    else if (!validatePAN(formData.panNumber)) errors.panNumber = "Invalid PAN format";
+    
+    if (!panFile) fileErrorsObj.panFile = "PAN card upload is required";
+
+    if (!formData.aadharNumber) errors.aadharNumber = "Aadhar number is required";
+    else if (!validateAadhar(formData.aadharNumber)) errors.aadharNumber = "Invalid Aadhar number";
+    
+    if (!addressProofFile) fileErrorsObj.addressProofFile = "Aadhar card upload is required";
+
+    if (!formData.pincode) errors.pincode = "Pincode is required";
+    else if (!validatePincode(formData.pincode)) errors.pincode = "Invalid pincode";
+
+    if (!formData.state) errors.state = "State is required";
+
+    // Contact Details
+    if (!formData.mobileNumber) errors.mobileNumber = "Mobile number is required";
+    else if (!validateMobile(formData.mobileNumber)) errors.mobileNumber = "Invalid mobile number";
+
+    if (formData.email && !validateEmail(formData.email)) errors.email = "Invalid email format";
+
+    // Bank Details
+    if (!formData.bankAccountNumber) errors.bankAccountNumber = "Bank account number is required";
+    if (!formData.ifscCode) errors.ifscCode = "IFSC code is required";
+    if (!formData.bankName) errors.bankName = "Bank name is required";
+
+    const bankValidation = validateBankDetails(formData.bankAccountNumber, formData.ifscCode);
+    if (!bankValidation.accountValid) errors.bankAccountNumber = "Invalid account number";
+    if (!bankValidation.ifscValid) errors.ifscCode = "Invalid IFSC code";
+
+    if (!bankProofFile) fileErrorsObj.bankProofFile = "Bank proof upload is required";
+
+    // Driving License
+    if (!drivingLicenseFile) fileErrorsObj.drivingLicenseFile = "Driving license upload is required";
+    if (!registrationFile) fileErrorsObj.registrationFile = "Vehicle RC upload is required";
+    if (!insuranceFile) fileErrorsObj.insuranceFile = "Vehicle insurance upload is required";
+
+    // Device Details
+    if (formData.deviceType === "android") {
+      if (!formData.androidPhoneModel) errors.androidPhoneModel = "Phone model is required";
+      if (!formData.androidVersion) errors.androidVersion = "Android version is required";
+    } else {
+      if (!formData.iosDevice) errors.iosDevice = "iOS device model is required";
+      if (!formData.iosVersion) errors.iosVersion = "iOS version is required";
+    }
+
+    // Declarations
+    if (!formData.declaration) errors.declaration = "You must agree to the declaration";
+    if (!formData.declaration1) errors.declaration1 = "You must agree to the terms";
+
+    // Verification status
+    if (!panVerified) errors.panVerified = "PAN must be verified";
+    if (!aadharVerified) errors.aadharVerified = "Aadhar must be verified";
+
+    setFormErrors(errors);
+    console.log(errors);
+    setFileErrors(fileErrorsObj);
+
+    // Return true if no errors
+    return Object.keys(errors).length === 0 && Object.keys(fileErrorsObj).length === 0;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
-    setShowModal(true);
+    
+    // Mark all fields as touched
+    const allFields = Object.keys(formData).reduce((acc, key) => {
+      acc[key] = true;
+      return acc;
+    }, {} as Record<string, boolean>);
+    
+    setTouchedFields(allFields);
+    
+    // Validate form
+    const isValid = validateForm();
+    
+    if (isValid) {
+      console.log("Form submitted:", formData);
+      setShowModal(true);
+    } else {
+      // Scroll to the first error
+      const firstErrorField = document.querySelector('.error-field');
+      if (firstErrorField) {
+        firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
   };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    resetForm(); // Reset the form when modal is closed
+  };
+
   useEffect(() => {
     if (!showModal) return;
 
@@ -190,7 +368,7 @@ export default function DeliveryPartnerKYCForm() {
         confetti.style.left = `${startX}vw`;
         confetti.style.top = "-10px";
 
-        const scale = 0.1 + Math.random() * 0.1; // Previous was 0.6 + random * 1.2
+        const scale = 0.1 + Math.random() * 0.1;
         const horizontalDrift = -15 + Math.random() * 30;
         const duration = 5 + Math.random() * 3;
         const delay = Math.random() * 0.01;
@@ -228,43 +406,7 @@ export default function DeliveryPartnerKYCForm() {
       }
     };
   }, [showModal]);
-  const RenderModal = () => (
-    <div className="fixed inset-0 flex items-center justify-center z-50 px-4">
-      <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-        onClick={() => setShowModal(false)}
-      />
 
-      {/* Confetti container */}
-
-      {/* Modal content */}
-      <div className="relative bg-black/80 border border-slate-800 rounded-xl p-6 md:p-8 w-full max-w-md mx-auto shadow-2xl animate-bounce-in">
-        <button
-          onClick={() => setShowModal(false)}
-          className="absolute top-3 right-3 md:top-4 md:right-4 text-slate-400 hover:text-white transition-colors"
-        >
-          <X className="w-5 h-5 md:w-6 md:h-6" />
-        </button>
-
-        <h3 className="text-xl md:text-2xl font-bold mb-4 bg-gradient-to-r from-cyan-400 via-violet-500 to-amber-400 text-transparent bg-clip-text">
-          Welcome to Hirecentive Social
-        </h3>
-
-        <p className="text-slate-300 text-sm md:text-base mb-6">
-          Your journey with Hirecentive Social is set to start really soon!
-          We'll be in touch with you shortly to help you get started, after a
-          quick verification process!
-        </p>
-
-        <button
-          onClick={() => setShowModal(false)}
-          className="w-full py-2 md:py-3 px-4 rounded-lg bg-gradient-to-r from-cyan-400 via-violet-500 to-amber-400 text-white font-semibold hover:opacity-90 transition-opacity text-sm md:text-base"
-        >
-          Got it!
-        </button>
-      </div>
-    </div>
-  )
   // List of Indian states
   const indianStates = [
     "Andhra Pradesh",
@@ -307,17 +449,6 @@ export default function DeliveryPartnerKYCForm() {
 
   return (
     <section className="min-h-screen w-full py-12 px-4 md:px-8 lg:px-24 relative flex items-center justify-center bg-black">
-      {/* Background GIF */}
-      {/* <div
-        className="absolute inset-0 z-0"
-        style={{
-          backgroundImage: `url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/background-zNzthl4TD9Tu0P4xfUHtXcELWOJNVx.gif')`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "repeat",
-          animation: "seamlessLoop 8s linear infinite",
-        }}
-      /> */}
       <ParticleCanvas />
       <div className="absolute inset-0 opacity-40">
         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-violet-600 via-transparent to-transparent "></div>
@@ -424,6 +555,7 @@ export default function DeliveryPartnerKYCForm() {
               />
 
               <Select
+                value={formData.state}
                 onValueChange={(value) => handleSelectChange("state", value)}
               >
                 <SelectTrigger className="bg-black/60 border-slate-700/50 text-white">
@@ -438,7 +570,6 @@ export default function DeliveryPartnerKYCForm() {
                 </SelectContent>
               </Select>
             </div>
-
             {/* Contact Details */}
             <div className="space-y-4">
               <p className="text-sm font-medium text-slate-400">
@@ -502,10 +633,10 @@ export default function DeliveryPartnerKYCForm() {
                 Vehicle Details
               </p>
               <Select
+                value={formData.vehicleType}
                 onValueChange={(value) =>
                   handleSelectChange("vehicleType", value)
                 }
-                defaultValue="two-wheeler"
               >
                 <SelectTrigger className="bg-black/60 border-slate-700/50 text-white">
                   <SelectValue placeholder="Vehicle Type" />
@@ -679,7 +810,7 @@ export default function DeliveryPartnerKYCForm() {
               </div>
               <div className="flex items-start gap-3">
                 <Checkbox
-                  id="declaration"
+                  id="declaration1"
                   checked={formData.declaration1}
                   onCheckedChange={(checked) =>
                     setFormData((prev) => ({
@@ -723,18 +854,80 @@ export default function DeliveryPartnerKYCForm() {
             </Button>
           </form>
         </div>
-              {/* Modal - Responsive design */}
-      {showModal && RenderModal()}
+
+        {/* Fixed Modal Component */}
+        {showModal && (
+          <div className="fixed inset-0 flex items-center justify-center z-50 px-4">
+          {/* Background overlay */}
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={handleCloseModal}
+          />
+        
+          {/* Modal content */}
+          <div className="relative bg-black/90 border border-slate-800 rounded-xl p-6 md:p-8 w-full max-w-md mx-auto shadow-2xl">
+            {/* Close button */}
+            <button
+              onClick={handleCloseModal}
+              className="absolute top-3 right-3 md:top-4 md:right-4 text-slate-400 hover:text-white transition-colors"
+            >
+              <X className="w-5 h-5 md:w-6 md:h-6" />
+            </button>
+        
+            {/* Title */}
+            <h2 className="text-2xl md:text-3xl font-bold mb-4 text-center bg-gradient-to-r from-cyan-400 via-violet-500 to-amber-400 text-transparent bg-clip-text">
+              Congratulations!
+            </h2>
+            <hr className="mb-4"></hr>
+        
+            {/* Message */}
+            <p className="text-slate-300 text-sm md:text-base text-center mb-2">
+              We will get back to you soon with opportunities!
+            </p>
+            <p className="text-slate-300 text-sm md:text-base text-center mb-6">
+              Keep an eye on your WhatsApp number! We will share more details shortly.
+            </p>
+        
+            {/* Buttons */}
+            <div className="flex justify-center items-center space-x-2">
+              
+              <button
+                className="w-full py-2 md:py-3 px-4 rounded-lg bg-gradient-to-r from-cyan-400 via-violet-500 to-amber-400 text-white font-semibold hover:opacity-90 transition-opacity text-sm md:text-base"
+              >
+                Link to Dashboard
+              </button>
+            </div>
+        
+            {/* Security Notice */}
+            <p className="text-slate-400 text-xs md:text-sm mt-6 text-center">
+              <strong>Note:</strong> Hirecentive Social will <strong>ONLY</strong> send you messages on WhatsApp using <span className="text-cyan-400">(Number)</span>.
+              Beware of fraud companies and report if any other number contacts you.
+              Use the word <strong className="text-red-400">"Report"</strong> in the WhatsApp bot.
+            </p>
+          </div>
+        </div>
+        
+        )}
       </div>
-                  
+
       <style jsx global>{`
-        @keyframes seamlessLoop {
+        @keyframes bounce-in {
           0% {
-            background-position: 0% 0%;
+            opacity: 0;
+            transform: scale(0.8);
+          }
+          50% {
+            opacity: 1;
+            transform: scale(1.03);
           }
           100% {
-            background-position: 0% 100%;
+            opacity: 1;
+            transform: scale(1);
           }
+        }
+
+        .animate-bounce-in {
+          animation: bounce-in 0.5s ease-out forwards;
         }
       `}</style>
       <style>{`
