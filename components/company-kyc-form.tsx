@@ -2,7 +2,7 @@
 
 import type React from "react";
 import { useState } from "react";
-import { ArrowRight, Upload, Check, X } from "lucide-react";
+import { ArrowRight, Upload, Check, X, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -13,7 +13,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Textarea } from "@/components/ui/textarea";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import ParticleCanvas from "./ParticleCanvas";
 
 export default function DeliveryPartnerKYCForm() {
@@ -28,10 +33,14 @@ export default function DeliveryPartnerKYCForm() {
     bankAccountNumber: "",
     ifscCode: "",
     bankName: "",
+    deviceType: "android", // Added deviceType with default value
     androidPhoneModel: "",
     androidVersion: "",
+    iosDevice: "", // Added iOS device field
+    iosVersion: "", // Added iOS version field
     vehicleType: "two-wheeler",
     declaration: false,
+    declaration1: false,
     date: new Date().toISOString().split("T")[0],
   });
 
@@ -65,6 +74,18 @@ export default function DeliveryPartnerKYCForm() {
     if (name === "panNumber") {
       setPanVerified(null);
       setPanError("");
+    }
+  };
+
+  const handleDeviceTypeChange = (type: string) => {
+    setFormData((prev) => ({ ...prev, deviceType: type }));
+  };
+
+  const getVersionInstructions = () => {
+    if (formData.deviceType === "android") {
+      return "To check your Android version: Go to Settings > About phone > Android version";
+    } else {
+      return "To check your iOS version: Go to Settings > General > About > Software Version";
     }
   };
 
@@ -201,7 +222,7 @@ export default function DeliveryPartnerKYCForm() {
           <p className="text-center text-lg md:text-lg font-bold text-gray-400 mt-4 max-w-2xl mx-auto mb-4">
             While we try to find a suitable fulltime job matching your skill
             sets, we'll try our best to find you temporary job from our list
-            with companies like Grab and Swiggy! *{" "}
+            with companies like Grab and Swiggy! *{" "}
           </p>
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Personal Details */}
@@ -540,25 +561,113 @@ export default function DeliveryPartnerKYCForm() {
               )}
             </div>
 
-            {/* Phone Details */}
+            {/* Phone Details - UPDATED */}
             <div className="space-y-4">
               <p className="text-sm font-medium text-slate-400">
                 Device Details
               </p>
-              <Input
-                placeholder="Android Phone Model"
-                name="androidPhoneModel"
-                value={formData.androidPhoneModel}
-                onChange={handleInputChange}
-                className="bg-black/60 border-slate-700/50 text-white placeholder:text-slate-500"
-              />
-              <Input
-                placeholder="Android Version (Must be 4.4.4 or above)"
-                name="androidVersion"
-                value={formData.androidVersion}
-                onChange={handleInputChange}
-                className="bg-black/60 border-slate-700/50 text-white placeholder:text-slate-500"
-              />
+
+              {/* Device Type Selection */}
+              <div className="flex space-x-6">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="android"
+                    checked={formData.deviceType === "android"}
+                    onCheckedChange={() => handleDeviceTypeChange("android")}
+                    className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-cyan-400 data-[state=checked]:to-violet-500 border-slate-700"
+                  />
+                  <label htmlFor="android" className="text-sm text-slate-300">
+                    Android
+                  </label>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="ios"
+                    checked={formData.deviceType === "ios"}
+                    onCheckedChange={() => handleDeviceTypeChange("ios")}
+                    className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-cyan-400 data-[state=checked]:to-violet-500 border-slate-700"
+                  />
+                  <label htmlFor="ios" className="text-sm text-slate-300">
+                    Apple iOS
+                  </label>
+                </div>
+              </div>
+
+              {/* Conditional Device Fields */}
+              {formData.deviceType === "android" ? (
+                <div className="space-y-4">
+                  <Input
+                    placeholder="Android Phone Model"
+                    name="androidPhoneModel"
+                    value={formData.androidPhoneModel}
+                    onChange={handleInputChange}
+                    className="bg-black/60 border-slate-700/50 text-white placeholder:text-slate-500"
+                  />
+                  <div className="relative">
+                    <Input
+                      placeholder="Android Version (Must be 4.4.4 or above)"
+                      name="androidVersion"
+                      value={formData.androidVersion}
+                      onChange={handleInputChange}
+                      className="bg-black/60 border-slate-700/50 text-white placeholder:text-slate-500 pr-10"
+                    />
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                            <Info size={16} className="text-slate-400" />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent
+                          side="right"
+                          className="bg-black/80 text-white border-slate-700"
+                        >
+                          <p className="text-sm max-w-xs">
+                            {getVersionInstructions()}
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <Input
+                    placeholder="Apple Device Model (iPhone, iPad, etc.)"
+                    name="iosDevice"
+                    value={formData.iosDevice}
+                    onChange={handleInputChange}
+                    className="bg-black/60 border-slate-700/50 text-white placeholder:text-slate-500"
+                  />
+                  <div className="relative">
+                    <Input
+                      placeholder="iOS Version (Must be 12.0 or above)"
+                      name="iosVersion"
+                      value={formData.iosVersion}
+                      onChange={handleInputChange}
+                      className="bg-black/60 border-slate-700/50 text-white placeholder:text-slate-500 pr-10"
+                    />
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                            <Info size={16} className="text-slate-400" />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent
+                          side="right"
+                          className="bg-black/80 text-white border-slate-700"
+                        >
+                          <p className="text-sm max-w-xs">
+                            {getVersionInstructions()}
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Declaration */}
@@ -578,9 +687,31 @@ export default function DeliveryPartnerKYCForm() {
                 />
                 <label htmlFor="declaration" className="text-sm text-slate-300">
                   I confirm that the information provided is accurate and
-                  complete. I authorize Swiggy to verify all details submitted.
-                  I understand that false information may result in rejection of
-                  my application.
+                  complete. I authorize Hirecentive Network Technologies LLP,
+                  and it's clients to verify all details submitted. I understand
+                  that false information may result in rejection of my
+                  application.
+                </label>
+              </div>
+              <div className="flex items-start gap-3">
+                <Checkbox
+                  id="declaration"
+                  checked={formData.declaration1}
+                  onCheckedChange={(checked) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      declaration1: checked as boolean,
+                    }))
+                  }
+                  className="mt-1 data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-cyan-400 data-[state=checked]:to-violet-500 border-slate-700"
+                />
+                <label
+                  htmlFor="declaration1"
+                  className="text-sm text-slate-300"
+                >
+                  I have read and accept the terms and conditions & security
+                  policy and grant permission to use my details only for
+                  verification purposes.
                 </label>
               </div>
               <Input
@@ -588,7 +719,10 @@ export default function DeliveryPartnerKYCForm() {
                 name="date"
                 value={formData.date}
                 onChange={handleInputChange}
-                className="bg-black/60 border-slate-700/50 text-white"
+                className="bg-black/60 border-slate-700/50 text-slate-400"
+                min={new Date().toISOString().split("T")[0]} // Restrict to today's date
+                max={new Date().toISOString().split("T")[0]} // Restrict to today's date
+                readOnly // Prevents manual editing
               />
             </div>
 
