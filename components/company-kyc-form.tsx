@@ -2,6 +2,7 @@
 
 import type React from "react";
 import { useState } from "react";
+import { useEffect } from "react";
 import { ArrowRight, Upload, Check, X, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,6 +21,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import ParticleCanvas from "./ParticleCanvas";
+import FileUpload from "./FIleUploadButton";
 
 export default function DeliveryPartnerKYCForm() {
   const [formData, setFormData] = useState({
@@ -59,6 +61,7 @@ export default function DeliveryPartnerKYCForm() {
   const [aadharError, setAadharError] = useState("");
   const [panVerified, setPanVerified] = useState<boolean | null>(null);
   const [panError, setPanError] = useState("");
+  const [showModal, setShowModal] = useState(false);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -135,14 +138,14 @@ export default function DeliveryPartnerKYCForm() {
     setPanError("");
   };
 
-  const handleFileChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    setFile: React.Dispatch<React.SetStateAction<File | null>>
-  ) => {
-    if (e.target.files) {
-      setFile(e.target.files[0]);
-    }
-  };
+  // const handleFileChange = (
+  //   e: React.ChangeEvent<HTMLInputElement>,
+  //   setFile: React.Dispatch<React.SetStateAction<File | null>>
+  // ) => {
+  //   if (e.target.files) {
+  //     setFile(e.target.files[0]);
+  //   }
+  // };
 
   const handleSelectChange = (name: string, value: string) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -151,8 +154,117 @@ export default function DeliveryPartnerKYCForm() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Form submitted:", formData);
+    setShowModal(true);
   };
+  useEffect(() => {
+    if (!showModal) return;
 
+    let container = document.getElementById("confetti-container");
+    if (!container) {
+      container = document.createElement("div");
+      container.id = "confetti-container";
+      container.className =
+        "fixed inset-0 pointer-events-none z-50 overflow-hidden";
+      document.body.appendChild(container);
+    }
+
+    const createConfetti = () => {
+      const shapes = ["circle"];
+      const colors = [
+        "from-cyan-400 to-violet-500",
+        "from-violet-500 to-amber-400",
+        "from-amber-400 to-cyan-400",
+        "from-pink-400 to-purple-500",
+        "from-yellow-400 to-orange-500",
+      ];
+
+      for (let i = 0; i < 50; i++) {
+        const confetti = document.createElement("div");
+        const shape = shapes[Math.floor(Math.random() * shapes.length)];
+
+        confetti.className = `absolute w-3 h-3 bg-gradient-to-r ${
+          colors[Math.floor(Math.random() * colors.length)]
+        } ${shape === "circle" ? "rounded-full" : "rounded-sm"}`;
+
+        const startX = Math.random() * 100;
+        confetti.style.left = `${startX}vw`;
+        confetti.style.top = "-10px";
+
+        const scale = 0.1 + Math.random() * 0.1; // Previous was 0.6 + random * 1.2
+        const horizontalDrift = -15 + Math.random() * 30;
+        const duration = 5 + Math.random() * 3;
+        const delay = Math.random() * 0.01;
+        const rotationSpeed = 2 + Math.random() * 5;
+
+        confetti.style.transform = `scale(${scale})`;
+        confetti.style.animation = `
+          confettiFall ${duration}s ${delay}s ease-in-out forwards,
+          confettiDrift ${duration}s ${delay}s ease-in-out infinite alternate,
+          confettiRotate ${rotationSpeed}s linear infinite`;
+
+        confetti.style.setProperty("--drift-distance", `${horizontalDrift}px`);
+
+        container.appendChild(confetti);
+
+        setTimeout(() => confetti.remove(), (duration + delay) * 1000);
+      }
+    };
+
+    createConfetti();
+    let burstCount = 0;
+    const maxBursts = 3;
+    const interval = setInterval(() => {
+      burstCount++;
+      createConfetti();
+      if (burstCount >= maxBursts) {
+        clearInterval(interval);
+      }
+    }, 1000);
+
+    return () => {
+      clearInterval(interval);
+      if (container) {
+        container.remove();
+      }
+    };
+  }, [showModal]);
+  const RenderModal = () => (
+    <div className="fixed inset-0 flex items-center justify-center z-50 px-4">
+      <div
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        onClick={() => setShowModal(false)}
+      />
+
+      {/* Confetti container */}
+
+      {/* Modal content */}
+      <div className="relative bg-black/80 border border-slate-800 rounded-xl p-6 md:p-8 w-full max-w-md mx-auto shadow-2xl animate-bounce-in">
+        <button
+          onClick={() => setShowModal(false)}
+          className="absolute top-3 right-3 md:top-4 md:right-4 text-slate-400 hover:text-white transition-colors"
+        >
+          <X className="w-5 h-5 md:w-6 md:h-6" />
+        </button>
+
+        <h3 className="text-xl md:text-2xl font-bold mb-4 bg-gradient-to-r from-cyan-400 via-violet-500 to-amber-400 text-transparent bg-clip-text">
+          Welcome to Hirecentive Social
+        </h3>
+
+        <p className="text-slate-300 text-sm md:text-base mb-6">
+          Your journey with Hirecentive Social is set to start really soon!
+          We'll be in touch with you shortly to help you get started, after a
+          quick verification process!
+        </p>
+
+        <button
+          onClick={() => setShowModal(false)}
+          className="w-full py-2 md:py-3 px-4 rounded-lg bg-gradient-to-r from-cyan-400 via-violet-500 to-amber-400 text-white font-semibold hover:opacity-90 transition-opacity text-sm md:text-base"
+        >
+          Got it!
+        </button>
+      </div>
+    </div>
+  )
   // List of Indian states
   const indianStates = [
     "Andhra Pradesh",
@@ -262,30 +374,12 @@ export default function DeliveryPartnerKYCForm() {
                 </p>
               )}
 
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Upload PAN Card"
-                  disabled
-                  className="bg-black/60 border-slate-700/50 text-white placeholder:text-slate-500"
-                />
-                <Button
-                  type="button"
-                  onClick={() => document.getElementById("panUpload")?.click()}
-                  className="px-3 bg-gradient-to-r from-cyan-400 via-violet-500 to-amber-400 text-white"
-                >
-                  <Upload className="w-5 h-5" />
-                </Button>
-                <input
-                  id="panUpload"
-                  type="file"
-                  onChange={(e) => handleFileChange(e, setPanFile)}
-                  className="hidden"
-                  accept="image/*,.pdf"
-                />
-              </div>
-              {panFile && (
-                <p className="text-sm text-slate-400">File: {panFile.name}</p>
-              )}
+              <FileUpload
+                id="panUpload"
+                label="Upload PAN Card"
+                file={panFile}
+                setFile={setPanFile}
+              />
 
               {/* ID Verification */}
               <div className="flex gap-2">
@@ -313,34 +407,12 @@ export default function DeliveryPartnerKYCForm() {
                 </p>
               )}
 
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Upload Aadhar Card"
-                  disabled
-                  className="bg-black/60 border-slate-700/50 text-white placeholder:text-slate-500"
-                />
-                <Button
-                  type="button"
-                  onClick={() =>
-                    document.getElementById("addressProofUpload")?.click()
-                  }
-                  className="px-3 bg-gradient-to-r from-cyan-400 via-violet-500 to-amber-400 text-white"
-                >
-                  <Upload className="w-5 h-5" />
-                </Button>
-                <input
-                  id="addressProofUpload"
-                  type="file"
-                  onChange={(e) => handleFileChange(e, setAddressProofFile)}
-                  className="hidden"
-                  accept="image/*,.pdf"
-                />
-              </div>
-              {addressProofFile && (
-                <p className="text-sm text-slate-400">
-                  File: {addressProofFile.name}
-                </p>
-              )}
+              <FileUpload
+                id="addressProofUpload"
+                label="Upload Aadhar Card"
+                file={addressProofFile}
+                setFile={setAddressProofFile}
+              />
 
               <Input
                 type="text"
@@ -416,34 +488,12 @@ export default function DeliveryPartnerKYCForm() {
                 onChange={handleInputChange}
                 className="bg-black/60 border-slate-700/50 text-white placeholder:text-slate-500"
               />
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Upload Bank Proof"
-                  disabled
-                  className="bg-black/60 border-slate-700/50 text-white placeholder:text-slate-500"
-                />
-                <Button
-                  type="button"
-                  onClick={() =>
-                    document.getElementById("bankProofUpload")?.click()
-                  }
-                  className="px-3 bg-gradient-to-r from-cyan-400 via-violet-500 to-amber-400 text-white"
-                >
-                  <Upload className="w-5 h-5" />
-                  <input
-                    id="bankProofUpload"
-                    type="file"
-                    onChange={(e) => handleFileChange(e, setBankProofFile)}
-                    className="hidden"
-                    accept="image/*,.pdf"
-                  />
-                </Button>
-                {bankProofFile && (
-                  <p className="text-sm text-slate-400">
-                    File: {bankProofFile.name}
-                  </p>
-                )}
-              </div>
+              <FileUpload
+                id="bankProofUpload"
+                label="Upload Bank Proof"
+                file={bankProofFile}
+                setFile={setBankProofFile}
+              />
             </div>
 
             {/* Vehicle Details */}
@@ -473,92 +523,26 @@ export default function DeliveryPartnerKYCForm() {
               </Select>
 
               {/* Driving License */}
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Upload Driving License"
-                  disabled
-                  className="bg-black/60 border-slate-700/50 text-white placeholder:text-slate-500"
-                />
-                <Button
-                  type="button"
-                  onClick={() =>
-                    document.getElementById("licenseUpload")?.click()
-                  }
-                  className="px-3 bg-gradient-to-r from-cyan-400 via-violet-500 to-amber-400 text-white"
-                >
-                  <Upload className="w-5 h-5" />
-                </Button>
-                <input
-                  id="licenseUpload"
-                  type="file"
-                  onChange={(e) => handleFileChange(e, setDrivingLicenseFile)}
-                  className="hidden"
-                  accept="image/*,.pdf"
-                />
-              </div>
-              {drivingLicenseFile && (
-                <p className="text-sm text-slate-400">
-                  File: {drivingLicenseFile.name}
-                </p>
-              )}
+              <FileUpload
+                id="licenseUpload"
+                label="Upload Driving License"
+                file={drivingLicenseFile}
+                setFile={setDrivingLicenseFile}
+              />
 
-              {/* Registration Certificate */}
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Upload Vehicle RC"
-                  disabled
-                  className="bg-black/60 border-slate-700/50 text-white placeholder:text-slate-500"
-                />
-                <Button
-                  type="button"
-                  onClick={() => document.getElementById("rcUpload")?.click()}
-                  className="px-3 bg-gradient-to-r from-cyan-400 via-violet-500 to-amber-400 text-white"
-                >
-                  <Upload className="w-5 h-5" />
-                </Button>
-                <input
-                  id="rcUpload"
-                  type="file"
-                  onChange={(e) => handleFileChange(e, setRegistrationFile)}
-                  className="hidden"
-                  accept="image/*,.pdf"
-                />
-              </div>
-              {registrationFile && (
-                <p className="text-sm text-slate-400">
-                  File: {registrationFile.name}
-                </p>
-              )}
+              <FileUpload
+                id="rcUpload"
+                label="Upload Vehicle RC"
+                file={registrationFile}
+                setFile={setRegistrationFile}
+              />
 
-              {/* Insurance */}
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Upload Vehicle Insurance"
-                  disabled
-                  className="bg-black/60 border-slate-700/50 text-white placeholder:text-slate-500"
-                />
-                <Button
-                  type="button"
-                  onClick={() =>
-                    document.getElementById("insuranceUpload")?.click()
-                  }
-                  className="px-3 bg-gradient-to-r from-cyan-400 via-violet-500 to-amber-400 text-white"
-                >
-                  <Upload className="w-5 h-5" />
-                </Button>
-                <input
-                  id="insuranceUpload"
-                  type="file"
-                  onChange={(e) => handleFileChange(e, setInsuranceFile)}
-                  className="hidden"
-                  accept="image/*,.pdf"
-                />
-              </div>
-              {insuranceFile && (
-                <p className="text-sm text-slate-400">
-                  File: {insuranceFile.name}
-                </p>
-              )}
+              <FileUpload
+                id="insuranceUpload"
+                label="Upload Vehicle Insurance"
+                file={insuranceFile}
+                setFile={setInsuranceFile}
+              />
             </div>
 
             {/* Phone Details - UPDATED */}
@@ -739,8 +723,10 @@ export default function DeliveryPartnerKYCForm() {
             </Button>
           </form>
         </div>
+              {/* Modal - Responsive design */}
+      {showModal && RenderModal()}
       </div>
-
+                  
       <style jsx global>{`
         @keyframes seamlessLoop {
           0% {
@@ -749,6 +735,98 @@ export default function DeliveryPartnerKYCForm() {
           100% {
             background-position: 0% 100%;
           }
+        }
+      `}</style>
+      <style>{`
+        @keyframes confettiFall {
+          0% {
+            transform: translateY(0) rotate(0deg);
+            opacity: 1;
+          }
+          100% {
+            transform: translateY(100vh) rotate(720deg);
+            opacity: 0;
+          }
+        }
+
+        @keyframes bounce-in {
+          0% {
+            transform: scale(0.9);
+            opacity: 0;
+          }
+          70% {
+            transform: scale(1.05);
+            opacity: 1;
+          }
+          100% {
+            transform: scale(1);
+            opacity: 1;
+          }
+        }
+        @keyframes float {
+          0% {
+            transform: translateY(0) rotate(0deg);
+          }
+          100% {
+            transform: translateY(-100px) rotate(360deg);
+          }
+        }
+
+        @keyframes fadeInOut {
+          0% {
+            opacity: 0;
+          }
+          50% {
+            opacity: 0.8;
+          }
+          100% {
+            opacity: 0;
+          }
+        }
+
+        @keyframes bounce-in {
+          0% {
+            transform: scale(0.9);
+            opacity: 0;
+          }
+          70% {
+            transform: scale(1.05);
+            opacity: 1;
+          }
+          100% {
+            transform: scale(1);
+            opacity: 1;
+          }
+        }
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        @keyframes float {
+          from {
+            transform: translateY(0);
+          }
+          to {
+            transform: translateY(-15px);
+          }
+        }
+        @keyframes fadeInOut {
+          0%,
+          100% {
+            opacity: 0;
+          }
+          50% {
+            opacity: 1;
+          }
+        }
+        .animate-bounce-in {
+          animation: bounce-in 0.5s cubic-bezier(0.38, 0.1, 0.36, 1.47) forwards;
         }
       `}</style>
     </section>
