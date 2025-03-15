@@ -37,9 +37,7 @@ export default function DeliveryPartnerKYCForm() {
     ifscCode: "",
     bankName: "",
     deviceType: "android",
-    androidPhoneModel: "",
     androidVersion: "",
-    iosDevice: "",
     iosVersion: "",
     vehicleType: "two-wheeler",
     declaration: false,
@@ -228,30 +226,30 @@ export default function DeliveryPartnerKYCForm() {
     const fileErrorsObj: Record<string, string> = {};
 
     // Personal Details
-    if (!formData.fullName) errors.fullName = "Full name is required";
-    if (!formData.panNumber) errors.panNumber = "PAN number is required";
+    if (!formData.fullName) errors.fullName = "Full name is required * ";
+    if (!formData.panNumber) errors.panNumber = "PAN number is required * ";
     else if (!validatePAN(formData.panNumber))
       errors.panNumber = "Invalid PAN format";
 
-    if (!panFile) fileErrorsObj.panFile = "PAN card upload is required";
+    if (!panFile) fileErrorsObj.panFile = "PAN card upload is required * ";
 
     if (!formData.aadharNumber)
-      errors.aadharNumber = "Aadhar number is required";
+      errors.aadharNumber = "Aadhar number is required * ";
     else if (!validateAadhar(formData.aadharNumber))
       errors.aadharNumber = "Invalid Aadhar number";
 
     if (!addressProofFile)
-      fileErrorsObj.addressProofFile = "Aadhar card upload is required";
+      fileErrorsObj.addressProofFile = "Aadhar card upload is required * ";
 
-    if (!formData.pincode) errors.pincode = "Pincode is required";
+    if (!formData.pincode) errors.pincode = "Pincode is required * ";
     else if (!validatePincode(formData.pincode))
       errors.pincode = "Invalid pincode";
 
-    if (!formData.state) errors.state = "State is required";
+    if (!formData.state) errors.state = "State is required * ";
 
     // Contact Details
     if (!formData.mobileNumber)
-      errors.mobileNumber = "Mobile number is required";
+      errors.mobileNumber = "Mobile number is required * ";
     else if (!validateMobile(formData.mobileNumber))
       errors.mobileNumber = "Invalid mobile number";
 
@@ -260,9 +258,9 @@ export default function DeliveryPartnerKYCForm() {
 
     // Bank Details
     if (!formData.bankAccountNumber)
-      errors.bankAccountNumber = "Bank account number is required";
-    if (!formData.ifscCode) errors.ifscCode = "IFSC code is required";
-    if (!formData.bankName) errors.bankName = "Bank name is required";
+      errors.bankAccountNumber = "Bank account number is required * ";
+    if (!formData.ifscCode) errors.ifscCode = "IFSC code is required * ";
+    if (!formData.bankName) errors.bankName = "Bank name is required * ";
 
     const bankValidation = validateBankDetails(
       formData.bankAccountNumber,
@@ -273,26 +271,22 @@ export default function DeliveryPartnerKYCForm() {
     if (!bankValidation.ifscValid) errors.ifscCode = "Invalid IFSC code";
 
     if (!bankProofFile)
-      fileErrorsObj.bankProofFile = "Bank proof upload is required";
+      fileErrorsObj.bankProofFile = "Bank proof upload is required * ";
 
     // Driving License
     if (!drivingLicenseFile)
-      fileErrorsObj.drivingLicenseFile = "Driving license upload is required";
+      fileErrorsObj.drivingLicenseFile = "Driving license upload is required * ";
     if (!registrationFile)
-      fileErrorsObj.registrationFile = "Vehicle RC upload is required";
+      fileErrorsObj.registrationFile = "Vehicle RC upload is required * ";
     if (!insuranceFile)
-      fileErrorsObj.insuranceFile = "Vehicle insurance upload is required";
+      fileErrorsObj.insuranceFile = "Vehicle insurance upload is required * ";
 
     // Device Details
     if (formData.deviceType === "android") {
-      if (!formData.androidPhoneModel)
-        errors.androidPhoneModel = "Phone model is required";
       if (!formData.androidVersion)
-        errors.androidVersion = "Android version is required";
+        errors.androidVersion = "Android version is required * ";
     } else {
-      if (!formData.iosDevice)
-        errors.iosDevice = "iOS device model is required";
-      if (!formData.iosVersion) errors.iosVersion = "iOS version is required";
+      if (!formData.iosVersion) errors.iosVersion = "iOS version is required * ";
     }
 
     // Declarations
@@ -471,7 +465,7 @@ export default function DeliveryPartnerKYCForm() {
           <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-center p-2 mb-2 bg-gradient-to-r from-cyan-400 via-violet-500 to-amber-400 text-transparent bg-clip-text">
             Candidate Verification Form
           </h1>
-          <p className="text-center text-lg md:text-lg font-bold text-gray-400 mt-4 max-w-2xl mx-auto mb-4">
+          <p className="text-center text-lg md:text-lg text-gray-400 mt-4 max-w-2xl mx-auto mb-4">
             While we try to find a suitable fulltime job matching your skill
             sets, we'll try our best to find you temporary job from our list
             with companies like Grab and Swiggy! *{" "}
@@ -483,7 +477,7 @@ export default function DeliveryPartnerKYCForm() {
                 Personal Details
               </p>
               <Input
-                placeholder="Full Name"
+                placeholder="Full Name *"
                 name="fullName"
                 value={formData.fullName}
                 onChange={handleInputChange}
@@ -499,7 +493,7 @@ export default function DeliveryPartnerKYCForm() {
               {/* PAN Verification */}
               <div className="flex gap-2">
                 <Input
-                  placeholder="PAN Number"
+                  placeholder="PAN Number *"
                   name="panNumber"
                   value={formData.panNumber}
                   onChange={handleInputChange}
@@ -532,7 +526,7 @@ export default function DeliveryPartnerKYCForm() {
               {/* ID Verification */}
               <div className="flex gap-2">
                 <Input
-                  placeholder="Aadhar Number"
+                  placeholder="Aadhar Number *"
                   name="aadharNumber"
                   value={formData.aadharNumber}
                   onChange={handleInputChange}
@@ -566,7 +560,7 @@ export default function DeliveryPartnerKYCForm() {
 
               <Input
                 type="text"
-                placeholder="Enter Pincode"
+                placeholder="Enter Pincode *"
                 name="pincode"
                 value={formData.pincode}
                 onChange={handleInputChange}
@@ -584,7 +578,7 @@ export default function DeliveryPartnerKYCForm() {
                 onValueChange={(value) => handleSelectChange("state", value)}
               >
                 <SelectTrigger className="bg-black/60 border-slate-700/50 text-white">
-                  <SelectValue placeholder="Select State" />
+                  <SelectValue placeholder="Select State *" />
                 </SelectTrigger>
                 <SelectContent>
                   {indianStates.map((state) => (
@@ -604,7 +598,7 @@ export default function DeliveryPartnerKYCForm() {
                 Contact Details
               </p>
               <Input
-                placeholder="WhatsApp contact number"
+                placeholder="WhatsApp contact number *"
                 name="mobileNumber"
                 type="tel"
                 value={formData.mobileNumber}
@@ -630,7 +624,7 @@ export default function DeliveryPartnerKYCForm() {
                 Bank Account Details
               </p>
               <Input
-                placeholder="Bank Account Number"
+                placeholder="Bank Account Number *"
                 name="bankAccountNumber"
                 value={formData.bankAccountNumber}
                 onChange={handleInputChange}
@@ -640,7 +634,7 @@ export default function DeliveryPartnerKYCForm() {
                 <p className="text-xs text-red-500">{formErrors.bankAccountNumber}</p>
               )}
               <Input
-                placeholder="IFSC Code"
+                placeholder="IFSC Code *"
                 name="ifscCode"
                 value={formData.ifscCode}
                 onChange={handleInputChange}
@@ -650,7 +644,7 @@ export default function DeliveryPartnerKYCForm() {
                 <p className="text-xs text-red-500">{formErrors.ifscCode}</p>
               )}
               <Input
-                placeholder="Bank Name"
+                placeholder="Bank Name *"
                 name="bankName"
                 value={formData.bankName}
                 onChange={handleInputChange}
@@ -679,7 +673,7 @@ export default function DeliveryPartnerKYCForm() {
                 }
               >
                 <SelectTrigger className="bg-black/60 border-slate-700/50 text-white">
-                  <SelectValue placeholder="Vehicle Type" />
+                  <SelectValue placeholder="Vehicle Type *" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="two-wheeler">Two Wheeler</SelectItem>
@@ -752,16 +746,10 @@ export default function DeliveryPartnerKYCForm() {
               {/* Conditional Device Fields */}
               {formData.deviceType === "android" ? (
                 <div className="space-y-4">
-                  <Input
-                    placeholder="Android Phone Model"
-                    name="androidPhoneModel"
-                    value={formData.androidPhoneModel}
-                    onChange={handleInputChange}
-                    className="bg-black/60 border-slate-700/50 text-white placeholder:text-slate-500"
-                  />
+                  
                   <div className="relative">
                     <Input
-                      placeholder="Android Version (Must be 4.4.4 or above)"
+                      placeholder="Android Version (Must be 4.4.4 or above) *"
                       name="androidVersion"
                       value={formData.androidVersion}
                       onChange={handleInputChange}
@@ -789,16 +777,10 @@ export default function DeliveryPartnerKYCForm() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  <Input
-                    placeholder="Apple Device Model (iPhone, iPad, etc.)"
-                    name="iosDevice"
-                    value={formData.iosDevice}
-                    onChange={handleInputChange}
-                    className="bg-black/60 border-slate-700/50 text-white placeholder:text-slate-500"
-                  />
+                  
                   <div className="relative">
                     <Input
-                      placeholder="iOS Version (Must be 12.0 or above)"
+                      placeholder="iOS Version (Must be 12.0 or above) *"
                       name="iosVersion"
                       value={formData.iosVersion}
                       onChange={handleInputChange}
@@ -848,7 +830,11 @@ export default function DeliveryPartnerKYCForm() {
                   that false information may result in rejection of my
                   application.
                 </label>
+                
               </div>
+                {touchedFields.declaration && formErrors.declaration && (
+                <p className="text-xs text-red-500">{formErrors.declaration}</p>
+              )}
               <div className="flex items-start gap-3">
                 <Checkbox
                   id="declaration1"
@@ -870,9 +856,7 @@ export default function DeliveryPartnerKYCForm() {
                   verification purposes.
                 </label>
               </div>
-              {touchedFields.declaration && formErrors.declaration && (
-                <p className="text-xs text-red-500">{formErrors.declaration}</p>
-              )}
+              
                 {touchedFields.declaration1 && formErrors.declaration1 && (
                 <p className="text-xs text-red-500">{formErrors.declaration1}</p>
               )}
