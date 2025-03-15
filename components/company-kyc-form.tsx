@@ -49,11 +49,15 @@ export default function DeliveryPartnerKYCForm() {
 
   const [formData, setFormData] = useState(initialFormState);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
-  const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({});
+  const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>(
+    {}
+  );
 
   // Document upload states
   const [panFile, setPanFile] = useState<File | null>(null);
-  const [drivingLicenseFile, setDrivingLicenseFile] = useState<File | null>(null);
+  const [drivingLicenseFile, setDrivingLicenseFile] = useState<File | null>(
+    null
+  );
   const [registrationFile, setRegistrationFile] = useState<File | null>(null);
   const [insuranceFile, setInsuranceFile] = useState<File | null>(null);
   const [addressProofFile, setAddressProofFile] = useState<File | null>(null);
@@ -72,14 +76,14 @@ export default function DeliveryPartnerKYCForm() {
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    
+
     // Mark field as touched
-    setTouchedFields(prev => ({...prev, [name]: true}));
-    
+    setTouchedFields((prev) => ({ ...prev, [name]: true }));
+
     // Clear error when user starts typing
     if (formErrors[name]) {
-      setFormErrors(prev => {
-        const newErrors = {...prev};
+      setFormErrors((prev) => {
+        const newErrors = { ...prev };
         delete newErrors[name];
         return newErrors;
       });
@@ -137,10 +141,10 @@ export default function DeliveryPartnerKYCForm() {
   const validateBankDetails = (accountNo: string, ifsc: string) => {
     const accountRegex = /^\d{9,18}$/;
     const ifscRegex = /^[A-Z]{4}0[A-Z0-9]{6}$/;
-    
+
     return {
       accountValid: accountRegex.test(accountNo),
-      ifscValid: ifscRegex.test(ifsc)
+      ifscValid: ifscRegex.test(ifsc),
     };
   };
 
@@ -182,11 +186,11 @@ export default function DeliveryPartnerKYCForm() {
 
   const handleSelectChange = (name: string, value: string) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
-    setTouchedFields(prev => ({...prev, [name]: true}));
-    
+    setTouchedFields((prev) => ({ ...prev, [name]: true }));
+
     if (formErrors[name]) {
-      setFormErrors(prev => {
-        const newErrors = {...prev};
+      setFormErrors((prev) => {
+        const newErrors = { ...prev };
         delete newErrors[name];
         return newErrors;
       });
@@ -195,11 +199,11 @@ export default function DeliveryPartnerKYCForm() {
 
   const handleCheckboxChange = (name: string, checked: boolean) => {
     setFormData((prev) => ({ ...prev, [name]: checked }));
-    setTouchedFields(prev => ({...prev, [name]: true}));
-    
+    setTouchedFields((prev) => ({ ...prev, [name]: true }));
+
     if (formErrors[name]) {
-      setFormErrors(prev => {
-        const newErrors = {...prev};
+      setFormErrors((prev) => {
+        const newErrors = { ...prev };
         delete newErrors[name];
         return newErrors;
       });
@@ -208,8 +212,8 @@ export default function DeliveryPartnerKYCForm() {
 
   const handleFileChange = (name: string, file: File | null) => {
     if (file) {
-      setFileErrors(prev => {
-        const newErrors = {...prev};
+      setFileErrors((prev) => {
+        const newErrors = { ...prev };
         delete newErrors[name];
         return newErrors;
       });
@@ -242,54 +246,76 @@ export default function DeliveryPartnerKYCForm() {
     // Personal Details
     if (!formData.fullName) errors.fullName = "Full name is required";
     if (!formData.panNumber) errors.panNumber = "PAN number is required";
-    else if (!validatePAN(formData.panNumber)) errors.panNumber = "Invalid PAN format";
-    
+    else if (!validatePAN(formData.panNumber))
+      errors.panNumber = "Invalid PAN format";
+
     if (!panFile) fileErrorsObj.panFile = "PAN card upload is required";
 
-    if (!formData.aadharNumber) errors.aadharNumber = "Aadhar number is required";
-    else if (!validateAadhar(formData.aadharNumber)) errors.aadharNumber = "Invalid Aadhar number";
-    
-    if (!addressProofFile) fileErrorsObj.addressProofFile = "Aadhar card upload is required";
+    if (!formData.aadharNumber)
+      errors.aadharNumber = "Aadhar number is required";
+    else if (!validateAadhar(formData.aadharNumber))
+      errors.aadharNumber = "Invalid Aadhar number";
+
+    if (!addressProofFile)
+      fileErrorsObj.addressProofFile = "Aadhar card upload is required";
 
     if (!formData.pincode) errors.pincode = "Pincode is required";
-    else if (!validatePincode(formData.pincode)) errors.pincode = "Invalid pincode";
+    else if (!validatePincode(formData.pincode))
+      errors.pincode = "Invalid pincode";
 
     if (!formData.state) errors.state = "State is required";
 
     // Contact Details
-    if (!formData.mobileNumber) errors.mobileNumber = "Mobile number is required";
-    else if (!validateMobile(formData.mobileNumber)) errors.mobileNumber = "Invalid mobile number";
+    if (!formData.mobileNumber)
+      errors.mobileNumber = "Mobile number is required";
+    else if (!validateMobile(formData.mobileNumber))
+      errors.mobileNumber = "Invalid mobile number";
 
-    if (formData.email && !validateEmail(formData.email)) errors.email = "Invalid email format";
+    if (formData.email && !validateEmail(formData.email))
+      errors.email = "Invalid email format";
 
     // Bank Details
-    if (!formData.bankAccountNumber) errors.bankAccountNumber = "Bank account number is required";
+    if (!formData.bankAccountNumber)
+      errors.bankAccountNumber = "Bank account number is required";
     if (!formData.ifscCode) errors.ifscCode = "IFSC code is required";
     if (!formData.bankName) errors.bankName = "Bank name is required";
 
-    const bankValidation = validateBankDetails(formData.bankAccountNumber, formData.ifscCode);
-    if (!bankValidation.accountValid) errors.bankAccountNumber = "Invalid account number";
+    const bankValidation = validateBankDetails(
+      formData.bankAccountNumber,
+      formData.ifscCode
+    );
+    if (!bankValidation.accountValid)
+      errors.bankAccountNumber = "Invalid account number";
     if (!bankValidation.ifscValid) errors.ifscCode = "Invalid IFSC code";
 
-    if (!bankProofFile) fileErrorsObj.bankProofFile = "Bank proof upload is required";
+    if (!bankProofFile)
+      fileErrorsObj.bankProofFile = "Bank proof upload is required";
 
     // Driving License
-    if (!drivingLicenseFile) fileErrorsObj.drivingLicenseFile = "Driving license upload is required";
-    if (!registrationFile) fileErrorsObj.registrationFile = "Vehicle RC upload is required";
-    if (!insuranceFile) fileErrorsObj.insuranceFile = "Vehicle insurance upload is required";
+    if (!drivingLicenseFile)
+      fileErrorsObj.drivingLicenseFile = "Driving license upload is required";
+    if (!registrationFile)
+      fileErrorsObj.registrationFile = "Vehicle RC upload is required";
+    if (!insuranceFile)
+      fileErrorsObj.insuranceFile = "Vehicle insurance upload is required";
 
     // Device Details
     if (formData.deviceType === "android") {
-      if (!formData.androidPhoneModel) errors.androidPhoneModel = "Phone model is required";
-      if (!formData.androidVersion) errors.androidVersion = "Android version is required";
+      if (!formData.androidPhoneModel)
+        errors.androidPhoneModel = "Phone model is required";
+      if (!formData.androidVersion)
+        errors.androidVersion = "Android version is required";
     } else {
-      if (!formData.iosDevice) errors.iosDevice = "iOS device model is required";
+      if (!formData.iosDevice)
+        errors.iosDevice = "iOS device model is required";
       if (!formData.iosVersion) errors.iosVersion = "iOS version is required";
     }
 
     // Declarations
-    if (!formData.declaration) errors.declaration = "You must agree to the declaration";
-    if (!formData.declaration1) errors.declaration1 = "You must agree to the terms";
+    if (!formData.declaration)
+      errors.declaration = "You must agree to the declaration";
+    if (!formData.declaration1)
+      errors.declaration1 = "You must agree to the terms";
 
     // Verification status
     if (!panVerified) errors.panVerified = "PAN must be verified";
@@ -300,31 +326,34 @@ export default function DeliveryPartnerKYCForm() {
     setFileErrors(fileErrorsObj);
 
     // Return true if no errors
-    return Object.keys(errors).length === 0 && Object.keys(fileErrorsObj).length === 0;
+    return (
+      Object.keys(errors).length === 0 &&
+      Object.keys(fileErrorsObj).length === 0
+    );
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Mark all fields as touched
     const allFields = Object.keys(formData).reduce((acc, key) => {
       acc[key] = true;
       return acc;
     }, {} as Record<string, boolean>);
-    
+
     setTouchedFields(allFields);
-    
+
     // Validate form
     const isValid = validateForm();
-    
+
     if (isValid) {
       console.log("Form submitted:", formData);
       setShowModal(true);
     } else {
       // Scroll to the first error
-      const firstErrorField = document.querySelector('.error-field');
+      const firstErrorField = document.querySelector(".error-field");
       if (firstErrorField) {
-        firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        firstErrorField.scrollIntoView({ behavior: "smooth", block: "center" });
       }
     }
   };
@@ -478,9 +507,15 @@ export default function DeliveryPartnerKYCForm() {
                 name="fullName"
                 value={formData.fullName}
                 onChange={handleInputChange}
-                className="bg-black/60 border-slate-700/50 text-white placeholder:text-slate-500"
+                className={`bg-black/60 border-slate-700/50 text-white placeholder:text-slate-500 ${
+                  touchedFields.fullName && formErrors.fullName
+                    ? "border-red-500 error-field"
+                    : ""
+                }`}
               />
-
+              {touchedFields.fullName && formErrors.fullName && (
+                <p className="text-xs text-red-500">{formErrors.fullName}</p>
+              )}
               {/* PAN Verification */}
               <div className="flex gap-2">
                 <Input
@@ -488,8 +523,13 @@ export default function DeliveryPartnerKYCForm() {
                   name="panNumber"
                   value={formData.panNumber}
                   onChange={handleInputChange}
-                  className="bg-black/60 border-slate-700/50 text-white placeholder:text-slate-500"
+                  className={`bg-black/60 border-slate-700/50 text-white placeholder:text-slate-500 ${
+                    touchedFields.panNumber && formErrors.panNumber
+                      ? "border-red-500 error-field"
+                      : ""
+                  }`}
                 />
+                
                 <Button
                   type="button"
                   onClick={handlePANVerify}
@@ -498,6 +538,9 @@ export default function DeliveryPartnerKYCForm() {
                   Verify
                 </Button>
               </div>
+              {touchedFields.panNumber && formErrors.panNumber && (
+                <p className="text-xs text-red-500">{formErrors.panNumber}</p>
+              )}
               {panError && <p className="text-sm text-red-500">{panError}</p>}
               {panVerified && !panError && (
                 <p className="text-sm text-emerald-400">
@@ -519,7 +562,11 @@ export default function DeliveryPartnerKYCForm() {
                   name="aadharNumber"
                   value={formData.aadharNumber}
                   onChange={handleInputChange}
-                  className="bg-black/60 border-slate-700/50 text-white placeholder:text-slate-500"
+                  className={`bg-black/60 border-slate-700/50 text-white placeholder:text-slate-500 ${
+                    touchedFields.panNumber && formErrors.panNumber
+                      ? "border-red-500 error-field"
+                      : ""
+                  }`}
                 />
                 <Button
                   type="button"
@@ -529,9 +576,13 @@ export default function DeliveryPartnerKYCForm() {
                   Verify
                 </Button>
               </div>
+              {touchedFields.aadharNumber && formErrors.aadharNumber && (
+                <p className="text-xs text-red-500">{formErrors.aadharNumber}</p>
+              )}
               {aadharError && (
                 <p className="text-sm text-red-500">{aadharError}</p>
               )}
+              
               {aadharVerified && !aadharError && (
                 <p className="text-sm text-emerald-400">
                   Aadhar Verified Successfully
@@ -551,9 +602,15 @@ export default function DeliveryPartnerKYCForm() {
                 name="pincode"
                 value={formData.pincode}
                 onChange={handleInputChange}
-                className="bg-black/60 border-slate-700/50 text-white placeholder:text-slate-500"
+                className={`bg-black/60 border-slate-700/50 text-white placeholder:text-slate-500 ${
+                  touchedFields.panNumber && formErrors.panNumber
+                    ? "border-red-500 error-field"
+                    : ""
+                }`}
               />
-
+              {touchedFields.pincode && formErrors.pincode && (
+                <p className="text-xs text-red-500">{formErrors.pincode}</p>
+              )}
               <Select
                 value={formData.state}
                 onValueChange={(value) => handleSelectChange("state", value)}
@@ -583,6 +640,9 @@ export default function DeliveryPartnerKYCForm() {
                 onChange={handleInputChange}
                 className="bg-black/60 border-slate-700/50 text-white placeholder:text-slate-500"
               />
+              {touchedFields.mobileNumber && formErrors.mobileNumber && (
+                <p className="text-xs text-red-500">{formErrors.mobileNumber}</p>
+              )}
               <Input
                 placeholder="Email ID (Optional)"
                 name="email"
@@ -605,6 +665,9 @@ export default function DeliveryPartnerKYCForm() {
                 onChange={handleInputChange}
                 className="bg-black/60 border-slate-700/50 text-white placeholder:text-slate-500"
               />
+              {touchedFields.bankAccountNumber && formErrors.bankAccountNumber && (
+                <p className="text-xs text-red-500">{formErrors.bankAccountNumber}</p>
+              )}
               <Input
                 placeholder="IFSC Code"
                 name="ifscCode"
@@ -612,6 +675,9 @@ export default function DeliveryPartnerKYCForm() {
                 onChange={handleInputChange}
                 className="bg-black/60 border-slate-700/50 text-white placeholder:text-slate-500"
               />
+              {touchedFields.ifscCode && formErrors.ifscCode && (
+                <p className="text-xs text-red-500">{formErrors.ifscCode}</p>
+              )}
               <Input
                 placeholder="Bank Name"
                 name="bankName"
@@ -619,6 +685,9 @@ export default function DeliveryPartnerKYCForm() {
                 onChange={handleInputChange}
                 className="bg-black/60 border-slate-700/50 text-white placeholder:text-slate-500"
               />
+              {touchedFields.bankName && formErrors.bankName && (
+                <p className="text-xs text-red-500">{formErrors.bankName}</p>
+              )}
               <FileUpload
                 id="bankProofUpload"
                 label="Upload Bank Proof"
@@ -727,6 +796,7 @@ export default function DeliveryPartnerKYCForm() {
                       onChange={handleInputChange}
                       className="bg-black/60 border-slate-700/50 text-white placeholder:text-slate-500 pr-10"
                     />
+                    
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -829,6 +899,12 @@ export default function DeliveryPartnerKYCForm() {
                   verification purposes.
                 </label>
               </div>
+              {touchedFields.declaration && formErrors.declaration && (
+                <p className="text-xs text-red-500">{formErrors.declaration}</p>
+              )}
+                {touchedFields.declaration1 && formErrors.declaration1 && (
+                <p className="text-xs text-red-500">{formErrors.declaration1}</p>
+              )}
               <Input
                 type="date"
                 name="date"
@@ -858,55 +934,55 @@ export default function DeliveryPartnerKYCForm() {
         {/* Fixed Modal Component */}
         {showModal && (
           <div className="fixed inset-0 flex items-center justify-center z-50 px-4">
-          {/* Background overlay */}
-          <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-            onClick={handleCloseModal}
-          />
-        
-          {/* Modal content */}
-          <div className="relative bg-black/90 border border-slate-800 rounded-xl p-6 md:p-8 w-full max-w-md mx-auto shadow-2xl">
-            {/* Close button */}
-            <button
+            {/* Background overlay */}
+            <div
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
               onClick={handleCloseModal}
-              className="absolute top-3 right-3 md:top-4 md:right-4 text-slate-400 hover:text-white transition-colors"
-            >
-              <X className="w-5 h-5 md:w-6 md:h-6" />
-            </button>
-        
-            {/* Title */}
-            <h2 className="text-2xl md:text-3xl font-bold mb-4 text-center bg-gradient-to-r from-cyan-400 via-violet-500 to-amber-400 text-transparent bg-clip-text">
-              Congratulations!
-            </h2>
-            <hr className="mb-4"></hr>
-        
-            {/* Message */}
-            <p className="text-slate-300 text-sm md:text-base text-center mb-2">
-              We will get back to you soon with opportunities!
-            </p>
-            <p className="text-slate-300 text-sm md:text-base text-center mb-6">
-              Keep an eye on your WhatsApp number! We will share more details shortly.
-            </p>
-        
-            {/* Buttons */}
-            <div className="flex justify-center items-center space-x-2">
-              
+            />
+
+            {/* Modal content */}
+            <div className="relative bg-black/90 border border-slate-800 rounded-xl p-6 md:p-8 w-full max-w-md mx-auto shadow-2xl">
+              {/* Close button */}
               <button
-                className="w-full py-2 md:py-3 px-4 rounded-lg bg-gradient-to-r from-cyan-400 via-violet-500 to-amber-400 text-white font-semibold hover:opacity-90 transition-opacity text-sm md:text-base"
+                onClick={handleCloseModal}
+                className="absolute top-3 right-3 md:top-4 md:right-4 text-slate-400 hover:text-white transition-colors"
               >
-                Link to Dashboard
+                <X className="w-5 h-5 md:w-6 md:h-6" />
               </button>
+
+              {/* Title */}
+              <h2 className="text-2xl md:text-3xl font-bold mb-4 text-center bg-gradient-to-r from-cyan-400 via-violet-500 to-amber-400 text-transparent bg-clip-text">
+                Congratulations!
+              </h2>
+              <hr className="mb-4"></hr>
+
+              {/* Message */}
+              <p className="text-slate-300 text-sm md:text-base text-center mb-2">
+                We will get back to you soon with opportunities!
+              </p>
+              <p className="text-slate-300 text-sm md:text-base text-center mb-6">
+                Keep an eye on your WhatsApp number! We will share more details
+                shortly.
+              </p>
+
+              {/* Buttons */}
+              <div className="flex justify-center items-center space-x-2">
+                <button className="w-full py-2 md:py-3 px-4 rounded-lg bg-gradient-to-r from-cyan-400 via-violet-500 to-amber-400 text-white font-semibold hover:opacity-90 transition-opacity text-sm md:text-base">
+                  Link to Dashboard
+                </button>
+              </div>
+
+              {/* Security Notice */}
+              <p className="text-slate-400 text-xs md:text-sm mt-6 text-center">
+                <strong>Note:</strong> Hirecentive Social will{" "}
+                <strong>ONLY</strong> send you messages on WhatsApp using{" "}
+                <span className="text-cyan-400">(Number)</span>. Beware of fraud
+                companies and report if any other number contacts you. Use the
+                word <strong className="text-red-400">"Report"</strong> in the
+                WhatsApp bot.
+              </p>
             </div>
-        
-            {/* Security Notice */}
-            <p className="text-slate-400 text-xs md:text-sm mt-6 text-center">
-              <strong>Note:</strong> Hirecentive Social will <strong>ONLY</strong> send you messages on WhatsApp using <span className="text-cyan-400">(Number)</span>.
-              Beware of fraud companies and report if any other number contacts you.
-              Use the word <strong className="text-red-400">"Report"</strong> in the WhatsApp bot.
-            </p>
           </div>
-        </div>
-        
         )}
       </div>
 
