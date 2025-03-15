@@ -21,10 +21,9 @@ export default function DeliveryPartnerKYCForm() {
     fullName: "",
     panNumber: "",
     aadharNumber: "",
-    voterId: "",
     mobileNumber: "",
     email: "",
-    address: "",
+    pincode: "",
     state: "",
     bankAccountNumber: "",
     ifscCode: "",
@@ -196,13 +195,14 @@ export default function DeliveryPartnerKYCForm() {
         <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400 via-violet-500 to-amber-400 rounded-xl blur opacity-25"></div>
 
         <div className="relative bg-black/50 backdrop-blur-2xl rounded-2xl p-6 md:p-10 border border-slate-800 shadow-2xl shadow-cyan-400/10">
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-center p-2 mb-2 bg-gradient-to-r from-cyan-400 via-violet-500 to-amber-400 text-transparent bg-clip-text">
-            Swiggy
+          <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-center p-2 mb-2 bg-gradient-to-r from-cyan-400 via-violet-500 to-amber-400 text-transparent bg-clip-text">
+            Candidate Verification Form
           </h1>
-          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-center mb-8 bg-gradient-to-r from-cyan-400 via-violet-500 to-amber-400 text-transparent bg-clip-text">
-            Delivery Partner Verification
-          </h2>
-
+          <p className="text-center text-lg md:text-lg font-bold text-gray-400 mt-4 max-w-2xl mx-auto mb-4">
+            While we try to find a suitable fulltime job matching your skill
+            sets, we'll try our best to find you temporary job from our list
+            with companies like Grab and Swiggy! *{" "}
+          </p>
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Personal Details */}
             <div className="space-y-4">
@@ -322,17 +322,10 @@ export default function DeliveryPartnerKYCForm() {
               )}
 
               <Input
-                placeholder="Voter ID (Optional if Aadhar provided)"
-                name="voterId"
-                value={formData.voterId}
-                onChange={handleInputChange}
-                className="bg-black/60 border-slate-700/50 text-white placeholder:text-slate-500"
-              />
-
-              <Textarea
-                placeholder="Permanent Address"
-                name="address"
-                value={formData.address}
+                type="text"
+                placeholder="Enter Pincode"
+                name="pincode"
+                value={formData.pincode}
                 onChange={handleInputChange}
                 className="bg-black/60 border-slate-700/50 text-white placeholder:text-slate-500"
               />
@@ -359,7 +352,7 @@ export default function DeliveryPartnerKYCForm() {
                 Contact Details
               </p>
               <Input
-                placeholder="Mobile Number"
+                placeholder="WhatsApp contact number"
                 name="mobileNumber"
                 type="tel"
                 value={formData.mobileNumber}
@@ -450,6 +443,11 @@ export default function DeliveryPartnerKYCForm() {
                   <SelectItem value="two-wheeler">Two Wheeler</SelectItem>
                   <SelectItem value="bike">Bike</SelectItem>
                   <SelectItem value="scooter">Scooter</SelectItem>
+                  <SelectItem value="three-wheeler">Three Wheeler</SelectItem>
+                  <SelectItem value="car">Car</SelectItem>
+                  <SelectItem value="van">Van</SelectItem>
+                  <SelectItem value="truck">Truck</SelectItem>
+                  <SelectItem value="bus">Bus</SelectItem>
                 </SelectContent>
               </Select>
 
