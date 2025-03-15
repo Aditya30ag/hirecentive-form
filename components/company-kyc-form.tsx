@@ -166,23 +166,7 @@ export default function DeliveryPartnerKYCForm() {
     setAadharError("");
   };
 
-  const handlePANVerify = () => {
-    if (!formData.panNumber) {
-      setPanError("Please enter PAN number");
-      setPanVerified(false);
-      return;
-    }
 
-    if (!validatePAN(formData.panNumber)) {
-      setPanError("Please enter a valid PAN format (e.g., ABCDE1234F)");
-      setPanVerified(false);
-      return;
-    }
-
-    // Simulating API verification
-    setPanVerified(true);
-    setPanError("");
-  };
 
   const handleSelectChange = (name: string, value: string) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -197,28 +181,28 @@ export default function DeliveryPartnerKYCForm() {
     }
   };
 
-  const handleCheckboxChange = (name: string, checked: boolean) => {
-    setFormData((prev) => ({ ...prev, [name]: checked }));
-    setTouchedFields((prev) => ({ ...prev, [name]: true }));
+  // const handleCheckboxChange = (name: string, checked: boolean) => {
+  //   setFormData((prev) => ({ ...prev, [name]: checked }));
+  //   setTouchedFields((prev) => ({ ...prev, [name]: true }));
 
-    if (formErrors[name]) {
-      setFormErrors((prev) => {
-        const newErrors = { ...prev };
-        delete newErrors[name];
-        return newErrors;
-      });
-    }
-  };
+  //   if (formErrors[name]) {
+  //     setFormErrors((prev) => {
+  //       const newErrors = { ...prev };
+  //       delete newErrors[name];
+  //       return newErrors;
+  //     });
+  //   }
+  // };
 
-  const handleFileChange = (name: string, file: File | null) => {
-    if (file) {
-      setFileErrors((prev) => {
-        const newErrors = { ...prev };
-        delete newErrors[name];
-        return newErrors;
-      });
-    }
-  };
+  // const handleFileChange = (name: string, file: File | null) => {
+  //   if (file) {
+  //     setFileErrors((prev) => {
+  //       const newErrors = { ...prev };
+  //       delete newErrors[name];
+  //       return newErrors;
+  //     });
+  //   }
+  // };
 
   // Reset form function
   const resetForm = () => {
@@ -316,10 +300,6 @@ export default function DeliveryPartnerKYCForm() {
       errors.declaration = "You must agree to the declaration";
     if (!formData.declaration1)
       errors.declaration1 = "You must agree to the terms";
-
-    // Verification status
-    if (!panVerified) errors.panVerified = "PAN must be verified";
-    if (!aadharVerified) errors.aadharVerified = "Aadhar must be verified";
 
     setFormErrors(errors);
     console.log(errors);
@@ -530,13 +510,7 @@ export default function DeliveryPartnerKYCForm() {
                   }`}
                 />
                 
-                <Button
-                  type="button"
-                  onClick={handlePANVerify}
-                  className="px-3 bg-gradient-to-r from-cyan-400 via-violet-500 to-amber-400 text-white"
-                >
-                  Verify
-                </Button>
+                
               </div>
               {touchedFields.panNumber && formErrors.panNumber && (
                 <p className="text-xs text-red-500">{formErrors.panNumber}</p>
@@ -568,13 +542,7 @@ export default function DeliveryPartnerKYCForm() {
                       : ""
                   }`}
                 />
-                <Button
-                  type="button"
-                  onClick={handleAadharVerify}
-                  className="px-3 bg-gradient-to-r from-cyan-400 via-violet-500 to-amber-400 text-white"
-                >
-                  Verify
-                </Button>
+                
               </div>
               {touchedFields.aadharNumber && formErrors.aadharNumber && (
                 <p className="text-xs text-red-500">{formErrors.aadharNumber}</p>
@@ -626,6 +594,9 @@ export default function DeliveryPartnerKYCForm() {
                   ))}
                 </SelectContent>
               </Select>
+              {touchedFields.state && formErrors.state && (
+                <p className="text-xs text-red-500">{formErrors.state}</p>
+              )}
             </div>
             {/* Contact Details */}
             <div className="space-y-4">
