@@ -883,10 +883,6 @@ export default function DeliveryPartnerKYCForm() {
                 <ArrowRight className="w-4 h-4 md:w-5 md:h-5 text-cyan-400 transition-transform duration-300 group-hover:translate-x-1" />
               </span>
             </Button>
-            <div className="flex items-center justify-between gap-2">
-            <a href="https://hirecentive.com/terms-and-conditions" target="_blank" rel="noopener noreferrer" className="text-slate-400 text-sm">Terms and Conditions</a>
-            <a href="https://hirecentive.com/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-slate-400 text-sm">Privacy Policy</a>
-            </div>
           </form>
         </div>
 
